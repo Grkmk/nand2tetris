@@ -1,0 +1,75 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/04/Fill.asm
+
+// Runs an infinite loop that listens to the keyboard input.
+// When a key is pressed (any key), the program blackens the screen,
+// i.e. writes "black" in every pixel;
+// the screen should remain fully black as long as the key is pressed. 
+// When no key is pressed, the program clears the screen, i.e. writes
+// "white" in every pixel;
+// the screen should remain fully clear as long as no key is pressed.
+
+	// init -> RAM[KBD]=false, RAM[SCREEN]=false
+	//
+	// loop	-> if RAM[KBD]=false
+	//	->    RAM[SCREEN]=false
+	//	->	loop until RAM[SCREEN]=false
+	//	->    RAM[SCREEN]=true
+	//	->	loop until RAM[SCREEN]=true
+	//
+	//	-> return to loop
+	//
+	// end  -> no need for END as loop is infinite
+
+	
+(LOOP)	// loop start
+
+	@i	//address tracker
+	M=0
+	
+	@KBD
+	D=M		// D=M[KBD]
+	@WHITE
+	D;JEQ		// if M[KBD]=0 goto WHITE
+	@BLACK
+	0;JEQ		// else goto BLACK
+	
+(WHITE)
+	
+	@i
+	D=M		// D=M[i]
+	@SCREEN
+	D=A+D		// D=A[SCREEN] + M[i]
+
+	@D
+	M=0		// M[D]=0, sets current SCREEN px to 0
+	@i
+	M=M+1		// M[i]++
+
+	@i
+	D=M-32768	// D=M[i]-A[SCREENmax]
+	@WHITE
+	D;JLT		// if D<0 goto WHITE
+	@LOOP
+	0;JEQ		// else goto LOOP
+
+(BLACK)
+
+	@i
+	D=M		// D=M[i]
+	@SCREEN
+	D=A+D		// D=A[SCREEN] + M[i]
+
+	@D
+	M=1		// M[D]=1, sets current SCREEN px to 1
+	@i
+	M=M+1		// M[i]++
+
+	@i
+	D=M-32768	// D=M[i]-A[SCREENmax]
+	@BLACK
+	D;JLT		// if D<0 goto BLACK
+	@LOOP
+	0;JEQ		// else goto LOOP
